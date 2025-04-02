@@ -5,6 +5,7 @@ import { getFirestore, collection, getDocs, addDoc } from "firebase/firestore";
 // https://firebase.google.com/docs/web/setup#available-libraries
 // my-modulesのインポート
 import { fetchHistoryData } from './my-modules/fetch-history-data';
+import { submitData } from './my-modules/submit-data';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -27,34 +28,7 @@ if(document.getElementById('js-history')) {
   fetchHistoryData(getDocs, collection, db);
 }
 
-
-// Cloud Firestoreにデータを送信する
-const submitData = async (e) => {
-  // preventDefault()メソッドはイベントをキャンセルすることができる。
-  // 送信イベントは呼ばれると、ページがリロードされたり遷移するので、それをキャンセル
-  e.preventDefault();
-
-  // FormDataオブジェクトでフォーム内の値を取得
-  const formData = new FormData(e.target);
-
-  // try・catch構文（非同期処理に成功した時、失敗した時）
-  try {
-    // ここに非同期処理をかく
-    const docRef = await addDoc(collection(db, "reports"), {
-      date: new Date(),
-      // FormDataオブジェクトに対し.get()メソッドが呼ばれている。引数にkey名を渡すことで、そのkeyに対応する値を取得できる。key名とは、<input>や<textarea>タグに設定されたname属性の値。
-      name: formData.get('name'),
-      work: formData.get('work'),
-      comment: formData.get('comment')
-    });
-    console.log("Document written with ID: ", docRef.id);
-  } catch (e) {
-    // 非同期処理が失敗した時の処理を書く(今回デバック用)
-    console.error("Error adding document: ", e);
-  }
-}
-
 // Cloud Firestoreにデータを送信する
 if(document.getElementById('js-form')) {
-  document.getElementById('js-form').addEventListener('submit', (e) => submitData(e));
+  document.getElementById('js-form').addEventListener('submit', (e) => submitData(e, addDoc, collection, db));
 };
